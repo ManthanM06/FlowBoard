@@ -8,6 +8,8 @@ import { WorkspacesModule } from './workspaces/workspaces.module'
 import { BoardsModule } from './boards/boards.module'
 import { TasksModule } from './tasks/tasks.module'
 import { RealtimeModule } from './realtime/realtime.module'
+import { CommentsModule } from './comments/comments.module'
+import { NotificationsModule } from './notifications/notifications.module'
 
 @Module({
   imports: [
@@ -21,6 +23,8 @@ import { RealtimeModule } from './realtime/realtime.module'
     BoardsModule,
     TasksModule,
     RealtimeModule,
+    CommentsModule,
+    NotificationsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -142,6 +142,10 @@ export interface MoveTaskRequest {
   nextTaskId?: string
 }
 
+export interface CreateCommentRequest {
+  body: string
+}
+
 export interface CommentSummary {
   id: string
   taskId: string

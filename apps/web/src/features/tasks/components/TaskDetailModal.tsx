@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import {
   X,
   Trash2,
@@ -6,15 +6,22 @@ import {
   Loader2,
   AlertCircle,
   Save,
+  MessageSquare,
+  Send,
 } from 'lucide-react'
 import {
   TaskSummary,
   TaskPriority,
   WorkspaceMemberSummary,
   ColumnSummary,
+  CommentSummary,
+  SocketEvent,
 } from '@flowboard/shared-types'
 import { updateTask, deleteTask } from '../api/taskApi'
+import { fetchComments, addComment, deleteComment } from '../../comments/api/commentsApi'
 import { useBoardStore } from '../../boards/stores/boardStore'
+import { useAuthStore } from '../../auth/stores/authStore'
+import { getSocket } from '../../../shared/lib/socket'
 
 interface TaskDetailModalProps {
   isOpen: boolean
@@ -45,8 +52,54 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
   const [isDeleting, setIsDeleting] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
+  // Comments state
+  const [comments, setComments] = useState<CommentSummary[]>([])
+  const [isCommentsLoading, setIsCommentsLoading] = useState(false)
+  const [commentBody, setCommentBody] = useState('')
+  const [isSubmittingComment, setIsSubmittingComment] = useState(false)
+
+  const currentUser = useAuthStore((s) => s.user)
   const { updateTask: updateInStore, removeTask: removeFromStore } =
     useBoardStore()
+
+  // Fetch comments
+  const loadComments = useCallback(async () => {
+    setIsCommentsLoading(true)
+    try {
+      const data = await fetchComments(task.id)
+      setComments(data)
+    } catch (err) {
+      console.error('Failed to load comments', err)
+    } finally {
+      setIsCommentsLoading(false)
+    }
+  }, [task.id])
+
+  useEffect(() => {
+    if (isOpen) {
+      loadComments()
+    }
+  }, [isOpen, loadComments])
+
+  // Real-time comment listener
+  useEffect(() => {
+    if (!isOpen) return
+    const socket = getSocket()
+
+    const handleCommentAdded = (newComment: CommentSummary) => {
+      if (newComment.taskId === task.id) {
+        setComments((prev) => {
+          if (prev.some((c) => c.id === newComment.id)) return prev
+          return [...prev, newComment]
+        })
+      }
+    }
+
+    socket.on(SocketEvent.COMMENT_ADDED, handleCommentAdded)
+    return () => {
+      socket.off(SocketEvent.COMMENT_ADDED, handleCommentAdded)
+    }
+  }, [isOpen, task.id])
 
   // Reset form state when task changes
   useEffect(() => {
@@ -128,6 +181,34 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
         setError('Failed to delete task')
       }
       setIsDeleting(false)
+    }
+  }
+
+  const handleAddComment = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!commentBody.trim() || isSubmittingComment) return
+
+    setIsSubmittingComment(true)
+    try {
+      const created = await addComment(task.id, { body: commentBody.trim() })
+      setComments((prev) => {
+        if (prev.some((c) => c.id === created.id)) return prev
+        return [...prev, created]
+      })
+      setCommentBody('')
+    } catch (err) {
+      console.error('Failed to post comment', err)
+    } finally {
+      setIsSubmittingComment(false)
+    }
+  }
+
+  const handleDeleteComment = async (commentId: string) => {
+    try {
+      await deleteComment(commentId)
+      setComments((prev) => prev.filter((c) => c.id !== commentId))
+    } catch (err) {
+      console.error('Failed to delete comment', err)
     }
   }
 
@@ -314,6 +395,103 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
               </div>
             </div>
           )}
+
+          {/* Comments Section */}
+          <div className="pt-3 border-t border-border-subtle space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <MessageSquare className="w-4 h-4 text-accent" />
+                <h4 className="text-xs font-bold text-text-primary uppercase tracking-wider font-mono">
+                  Comments ({comments.length})
+                </h4>
+              </div>
+              {isCommentsLoading && (
+                <Loader2 className="w-3.5 h-3.5 animate-spin text-text-secondary" />
+              )}
+            </div>
+
+            {/* Comments List */}
+            <div className="space-y-2.5 max-h-48 overflow-y-auto pr-1">
+              {comments.length === 0 && !isCommentsLoading ? (
+                <p className="text-xs text-text-secondary/70 italic py-2">
+                  No comments yet. Start the conversation!
+                </p>
+              ) : (
+                comments.map((comment) => {
+                  const isAuthor = currentUser?.id === comment.userId
+                  return (
+                    <div
+                      key={comment.id}
+                      className="p-2.5 rounded-card bg-surface border border-border-subtle text-xs space-y-1 group"
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <div className="w-5 h-5 rounded-full bg-accent/15 text-accent flex items-center justify-center font-mono text-[9px] font-bold">
+                            {(comment.user?.name || 'U').substring(0, 2).toUpperCase()}
+                          </div>
+                          <span className="font-semibold text-text-primary text-[11px]">
+                            {comment.user?.name || 'User'}
+                          </span>
+                          <span className="text-[10px] font-mono text-text-secondary/60">
+                            {new Date(comment.createdAt).toLocaleTimeString([], {
+                              hour: '2-digit',
+                              minute: '2-digit',
+                            })}
+                          </span>
+                        </div>
+
+                        {isAuthor && (
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteComment(comment.id)}
+                            className="text-text-secondary/40 hover:text-status-danger opacity-0 group-hover:opacity-100 transition-opacity p-1"
+                            title="Delete comment"
+                          >
+                            <Trash2 className="w-3 h-3" />
+                          </button>
+                        )}
+                      </div>
+
+                      <p className="text-[11px] text-text-primary pl-7 leading-relaxed whitespace-pre-wrap">
+                        {comment.body}
+                      </p>
+                    </div>
+                  )
+                })
+              )}
+            </div>
+
+            {/* Comment Composer */}
+            <div className="flex items-center gap-2 pt-1">
+              <input
+                type="text"
+                value={commentBody}
+                onChange={(e) => setCommentBody(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault()
+                    e.stopPropagation()
+                    handleAddComment(e)
+                  }
+                }}
+                placeholder="Write a comment... (Enter to send)"
+                className="flex-1 text-xs px-3 py-2 bg-surface border border-border-subtle rounded-button text-text-primary placeholder:text-text-secondary/50 focus:outline-none focus:border-accent"
+              />
+              <button
+                type="button"
+                onClick={(e) => handleAddComment(e)}
+                disabled={isSubmittingComment || !commentBody.trim()}
+                className="p-2 rounded-button bg-accent hover:bg-accent-hover text-white transition-colors disabled:opacity-50"
+                title="Send comment"
+              >
+                {isSubmittingComment ? (
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                ) : (
+                  <Send className="w-3.5 h-3.5" />
+                )}
+              </button>
+            </div>
+          </div>
 
           {/* Timestamps */}
           {task.createdAt && (

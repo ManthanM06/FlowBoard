@@ -7,6 +7,7 @@ import { AuthModal } from '../features/auth/components/AuthModal'
 import { WorkspaceSwitcher } from '../features/workspaces/components/WorkspaceSwitcher'
 import { useWorkspaceStore } from '../features/workspaces/stores/workspaceStore'
 import { KanbanBoard } from '../features/boards/components/KanbanBoard'
+import { NotificationBell } from '../features/notifications/components/NotificationBell'
 import {
   KanbanSquare,
   Database,
@@ -29,30 +30,31 @@ export const App: React.FC = () => {
 
   useEffect(() => {
     initAuth()
-  }, [initAuth])
-
-  const { data: healthData, isLoading, isError } = useQuery({
-    queryKey: ['systemHealth'],
-    queryFn: fetchHealth,
-    refetchInterval: 5000,
-  })
-
-  const { data: profileData } = useQuery({
-    queryKey: ['authMe'],
-    queryFn: fetchMe,
-    enabled: isAuthenticated,
-    retry: false,
-  })
-
-  useEffect(() => {
-    if (profileData) {
-      setUser(profileData)
+    if (isAuthenticated) {
+      fetchMe()
+        .then((userData) => setUser(userData))
+        .catch(() => clearAuth())
     }
-  }, [profileData, setUser])
+  }, [initAuth, isAuthenticated, setUser, clearAuth])
+
+  const {
+    data: healthData,
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: ['health'],
+    queryFn: fetchHealth,
+    refetchInterval: 10000,
+  })
 
   const handleLogout = async () => {
-    await logoutUser()
-    clearAuth()
+    try {
+      await logoutUser()
+    } catch {
+      // Clear locally even if API fails
+    } finally {
+      clearAuth()
+    }
   }
 
   const getInitials = (name: string) => {
@@ -65,8 +67,8 @@ export const App: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-canvas text-text-primary selection:bg-accent-subtle selection:text-accent">
-      {/* Top Navigation Bar */}
+    <div className="min-h-screen flex flex-col bg-canvas text-text-primary">
+      {/* Studio Ledger Top Navigation Bar */}
       <header className="border-b border-border-subtle bg-surface sticky top-0 z-10 px-6 py-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-4">
@@ -77,7 +79,7 @@ export const App: React.FC = () => {
               <div>
                 <span className="text-xl font-bold tracking-tight text-text-primary">FlowBoard</span>
                 <span className="ml-2 text-xs uppercase px-2 py-0.5 rounded-chip font-mono bg-accent-subtle text-accent font-semibold tracking-wider">
-                  Phase 3 Active
+                  Live
                 </span>
               </div>
             </div>
@@ -86,7 +88,7 @@ export const App: React.FC = () => {
             <WorkspaceSwitcher isAuthenticated={isAuthenticated} />
           </div>
 
-          <div className="flex items-center gap-4 text-sm font-medium">
+          <div className="flex items-center gap-3 text-sm font-medium">
             <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-button border border-border-subtle bg-canvas">
               <span
                 className={`w-2 h-2 rounded-full ${
@@ -97,6 +99,9 @@ export const App: React.FC = () => {
                 {isLoading ? 'Checking API...' : isError ? 'API Offline' : `API: ${healthData?.data.database ?? 'Ready'}`}
               </span>
             </div>
+
+            {/* Notification Bell */}
+            {isAuthenticated && <NotificationBell />}
 
             {/* Auth State Button / Profile */}
             {isAuthenticated && user ? (

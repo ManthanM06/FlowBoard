@@ -1,0 +1,57 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Studio Ledger Neutrals */
+  --bg-canvas: #F6F4EF;
+  --bg-surface: #FFFFFF;
+  --bg-sunken: #EDEAE2;
+  --border-subtle: #E2DED3;
+  --text-primary: #1C1A16;
+  --text-secondary: #6B6558;
+  --text-disabled: #B3AC9C;
+
+  /* Accent: Ink Indigo */
+  --accent: #3A3358;
+  --accent-hover: #4A4270;
+  --accent-subtle: #EBE9F2;
+
+  /* Semantic Hues */
+  --priority-low: #5B8A72;
+  --priority-medium: #C08A3E;
+  --priority-high: #B5533C;
+  --status-success: #4C7A5E;
+  --status-error: #A8433A;
+}
+
+body {
+  margin: 0;
+  font-family: 'Public Sans', Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background-color: var(--bg-canvas);
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+}
+
+code, kbd, samp, pre {
+  font-family: 'JetBrains Mono', 'IBM Plex Mono', monospace;
+}
+
+/* Custom scrollbar matching Studio Ledger */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-canvas);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-subtle);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-disabled);
+}

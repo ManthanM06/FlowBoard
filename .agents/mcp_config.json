@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "nestjs-mcp": {
+      "command": "npx",
+      "args": ["-y", "nestjs-mcp-server"]
+    },
+    "prisma-mcp": {
+      "command": "npx",
+      "args": ["-y", "@prisma/mcp"]
+    }
+  }
+}

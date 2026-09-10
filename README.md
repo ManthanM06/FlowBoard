@@ -66,7 +66,7 @@ A modern, high-performance team task management and real-time Kanban platform bu
 
 ---
 
-## 🏗️ Monorepo Structure
+## Monorepo Structure
 
 ```
 .
@@ -100,46 +100,56 @@ A modern, high-performance team task management and real-time Kanban platform bu
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
+
 - Node.js 20+
 - Docker and Docker Compose
 - npm 10+
 
 ### Step 1: Start PostgreSQL and Redis
+
 ```bash
 docker compose up -d
 ```
+
 Verify containers are healthy:
+
 ```bash
 docker compose ps
 ```
 
 ### Step 2: Install Dependencies
+
 ```bash
 npm install
 ```
 
 ### Step 3: Initialize Database Schema
+
 ```bash
 npm run prisma:push --workspace=apps/api
 ```
 
 ### Step 4: Build Shared Types
+
 ```bash
 npm run build --workspace=packages/shared-types
 ```
 
 ### Step 5: Start the Development Servers
+
 In two separate terminals:
 
 **Terminal 1 (Backend API on http://localhost:3001):**
+
 ```bash
 npm run dev:api
 ```
 
 **Terminal 2 (Frontend on http://localhost:5173):**
+
 ```bash
 npm run dev:web
 ```
@@ -148,20 +158,24 @@ Visit **http://localhost:5173** in your browser.
 
 ---
 
-## 🧪 Running Tests
+## Running Tests
 
 ### Run All Backend & Integration Tests:
+
 ```bash
 npm run test --workspace=apps/api
 ```
-*(Runs 55 tests across 8 suites: auth, workspaces, boards, tasks, realtime, comments, notifications, and E2E)*
+
+_(Runs 55 tests across 8 suites: auth, workspaces, boards, tasks, realtime, comments, notifications, and E2E)_
 
 ### Build All Workspaces:
+
 ```bash
 npm run build
 ```
 
 ### Run Linter:
+
 ```bash
 npm run lint
 ```

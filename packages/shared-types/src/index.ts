@@ -76,6 +76,39 @@ export interface ApiResponse<T> {
   }
 }
 
+export interface AuthTokens {
+  accessToken: string
+  refreshToken: string
+}
+
+export interface AuthResponse {
+  user: UserSummary
+  tokens: AuthTokens
+}
+
+export interface JwtPayload {
+  sub: string
+  email: string
+  name: string
+  iat?: number
+  exp?: number
+}
+
+export interface RegisterRequest {
+  email: string
+  password: string
+  name: string
+}
+
+export interface LoginRequest {
+  email: string
+  password: string
+}
+
+export interface RefreshTokenRequest {
+  refreshToken: string
+}
+
 export enum SocketEvent {
   TASK_CREATED = 'task.created',
   TASK_UPDATED = 'task.updated',
@@ -85,3 +118,4 @@ export enum SocketEvent {
   BOARD_JOIN = 'board.join',
   BOARD_LEAVE = 'board.leave',
 }
+

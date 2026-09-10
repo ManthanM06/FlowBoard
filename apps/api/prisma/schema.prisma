@@ -22,10 +22,11 @@ model User {
   id           String            @id @default(uuid())
   email        String            @unique
   passwordHash String
-  name         String
-  avatarUrl    String?
-  createdAt    DateTime          @default(now())
-  updatedAt    DateTime          @updatedAt
+  name             String
+  avatarUrl        String?
+  refreshTokenHash String?
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
 
   workspaces   WorkspaceMember[]
   ownedWorkspaces Workspace[]    @relation("WorkspaceOwner")

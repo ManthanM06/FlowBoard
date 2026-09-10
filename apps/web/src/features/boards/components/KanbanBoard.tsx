@@ -32,9 +32,12 @@ import {
 } from '../stores/boardStore'
 import { BoardHeader } from './BoardHeader'
 import { KanbanColumn } from './KanbanColumn'
+import { BoardFilterBar } from './BoardFilterBar'
+import { TeamDashboard } from './TeamDashboard'
 import { TaskCard } from '../../tasks/components/TaskCard'
 import { CreateBoardModal } from './CreateBoardModal'
 import { useBoardSocket } from '../../../shared/lib/socket'
+import { useFilterStore } from '../stores/filterStore'
 
 interface KanbanBoardProps {
   workspace: WorkspaceDetail
@@ -58,6 +61,8 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({ workspace }) => {
     addColumn,
     moveTaskLocally,
   } = useBoardStore()
+
+  const viewMode = useFilterStore((s) => s.viewMode)
 
   // Real-time synchronization
   useBoardSocket(activeBoard?.id ?? null)
@@ -267,19 +272,31 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({ workspace }) => {
       {/* Top Board Bar */}
       <BoardHeader workspace={workspace} />
 
-      {/* Kanban Columns Row with DndContext */}
-      <DndContext
-        sensors={sensors}
-        collisionDetection={closestCorners}
-        onDragStart={handleDragStart}
-        onDragEnd={handleDragEnd}
-      >
-        <div className="flex-1 overflow-x-auto overflow-y-hidden p-6">
-          {isLoading && !activeBoard ? (
-            <div className="h-full flex items-center justify-center">
-              <Loader2 className="w-6 h-6 animate-spin text-accent" />
-            </div>
-          ) : activeBoard ? (
+      {/* Filter and Search Toolbar */}
+      {activeBoard && (
+        <BoardFilterBar workspaceMembers={workspace.members} />
+      )}
+
+      {/* View Switch: Team Dashboard vs Kanban Columns */}
+      {viewMode === 'DASHBOARD' && activeBoard ? (
+        <TeamDashboard
+          board={activeBoard}
+          workspaceMembers={workspace.members}
+        />
+      ) : (
+        /* Kanban Columns Row with DndContext */
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCorners}
+          onDragStart={handleDragStart}
+          onDragEnd={handleDragEnd}
+        >
+          <div className="flex-1 overflow-x-auto overflow-y-hidden p-6">
+            {isLoading && !activeBoard ? (
+              <div className="h-full flex items-center justify-center">
+                <Loader2 className="w-6 h-6 animate-spin text-accent" />
+              </div>
+            ) : activeBoard ? (
             <div className="flex items-start gap-5 h-full min-w-max pb-4">
               {/* Sorted Columns */}
               {activeBoard.columns.map((column) => (
@@ -369,6 +386,7 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({ workspace }) => {
           ) : null}
         </DragOverlay>
       </DndContext>
+      )}
     </div>
   )
 }

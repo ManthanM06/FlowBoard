@@ -3,7 +3,7 @@
 > Update this as you go — check it off, don't rewrite history. Keep entries short; details belong in commits/PRs, not here.
 
 ## Currently working on
-- [ ] Phase 8 — Search, Filters & Dashboard (Task search across titles/descriptions, filters by priority/assignee/due date, high-level metrics dashboard & workload breakdown)
+- [ ] Phase 9 — Polish, Testing, Deploy (Mobile responsive folding, keyboard navigation, Docker health validation, Playwright/E2E test suite, final production readiness)
 
 ## Completed
 - [x] Phase 0 — Setup (Monorepo scaffolding, Docker Compose Postgres & Redis, Prisma schema, NestJS API with health check, React + Vite frontend with Studio Ledger design system, GitHub Actions CI skeleton)
@@ -14,6 +14,7 @@
 - [x] Phase 5 — Drag & Drop (@dnd-kit cross-column and within-column reordering, PATCH /tasks/:id/move with fractional-order calculation and rebalancing fallback, optimistic UI updates with automatic rollback on error, and DragOverlay preview)
 - [x] Phase 6 — Real-Time Sync (NestJS Socket.IO gateway with JWT auth handshake, room isolation board:<id>, broadcast events on task/column mutations, useBoardSocket auto-syncing client boardStore)
 - [x] Phase 7 — Comments & Notifications (Comments CRUD + Socket.IO real-time thread in TaskDetailModal, in-app notification system with bell badge, click-outside dismissal, mark as read / mark all read)
+- [x] Phase 8 — Search, Filters & Dashboard (Live title/description task search, priority/assignee/due-date filter toolbar, filtered column badge counters, Team Dashboard with delivery progress bar, 4 KPI cards, priority distribution and member workload breakdown)
 
 ## Phase checklist
 - [x] Phase 0 — Setup
@@ -24,7 +25,7 @@
 - [x] Phase 5 — Drag & Drop
 - [x] Phase 6 — Real-Time Sync
 - [x] Phase 7 — Comments & Notifications
-- [ ] Phase 8 — Search, Filters & Dashboard
+- [x] Phase 8 — Search, Filters & Dashboard
 - [ ] Phase 9 — Polish, Testing, Deploy
 
 ## Open decisions / blockers

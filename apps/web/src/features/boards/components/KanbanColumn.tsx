@@ -23,6 +23,7 @@ import {
 import { updateColumn, deleteColumn } from '../api/boardApi'
 import { createTask } from '../../tasks/api/taskApi'
 import { useBoardStore } from '../stores/boardStore'
+import { useFilterStore } from '../stores/filterStore'
 import { TaskCard } from '../../tasks/components/TaskCard'
 import { CreateTaskModal } from '../../tasks/components/CreateTaskModal'
 import { TaskDetailModal } from '../../tasks/components/TaskDetailModal'
@@ -73,7 +74,56 @@ export const KanbanColumn: React.FC<KanbanColumnProps> = ({
     addTask: addTaskToStore,
   } = useBoardStore()
 
-  const tasks = column.tasks || []
+  const {
+    searchQuery,
+    priorityFilter,
+    assigneeFilter,
+    dueDateFilter,
+  } = useFilterStore()
+
+  const rawTasks = column.tasks || []
+
+  // Filter tasks based on active search & filter conditions
+  const tasks = rawTasks.filter((task) => {
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase().trim()
+      const titleMatch = task.title.toLowerCase().includes(q)
+      const descMatch = task.description?.toLowerCase().includes(q)
+      if (!titleMatch && !descMatch) return false
+    }
+
+    if (priorityFilter !== 'ALL' && task.priority !== priorityFilter) {
+      return false
+    }
+
+    if (assigneeFilter !== 'ALL') {
+      const hasAssignee = task.assignees?.some((a) => a.id === assigneeFilter)
+      if (!hasAssignee) return false
+    }
+
+    if (dueDateFilter !== 'ALL') {
+      if (!task.dueDate) return false
+      const due = new Date(task.dueDate)
+      const today = new Date()
+      today.setHours(0, 0, 0, 0)
+      const endOfToday = new Date(today)
+      endOfToday.setHours(23, 59, 59, 999)
+
+      if (dueDateFilter === 'OVERDUE') {
+        if (due.getTime() >= today.getTime()) return false
+      } else if (dueDateFilter === 'TODAY') {
+        if (due.getTime() < today.getTime() || due.getTime() > endOfToday.getTime())
+          return false
+      } else if (dueDateFilter === 'THIS_WEEK') {
+        const nextWeek = new Date(today)
+        nextWeek.setDate(nextWeek.getDate() + 7)
+        if (due.getTime() < today.getTime() || due.getTime() > nextWeek.getTime())
+          return false
+      }
+    }
+
+    return true
+  })
 
   // Close menu on click outside
   useEffect(() => {
@@ -215,7 +265,9 @@ export const KanbanColumn: React.FC<KanbanColumnProps> = ({
 
             {!isEditingName && (
               <span className="px-1.5 py-0.5 rounded-chip text-[10px] font-mono font-semibold bg-canvas text-text-secondary border border-border-subtle shrink-0">
-                {tasks.length}
+                {tasks.length === rawTasks.length
+                  ? `${rawTasks.length}`
+                  : `${tasks.length}/${rawTasks.length}`}
               </span>
             )}
           </div>

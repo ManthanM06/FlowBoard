@@ -20,8 +20,40 @@ export interface WorkspaceSummary {
   id: string
   name: string
   ownerId: string
+  inviteCode?: string
   createdAt: string
   role?: WorkspaceRole
+}
+
+export interface WorkspaceMemberSummary {
+  id: string
+  userId: string
+  workspaceId: string
+  role: WorkspaceRole
+  joinedAt: string
+  user: UserSummary
+}
+
+export interface WorkspaceDetail extends WorkspaceSummary {
+  inviteCode: string
+  members: WorkspaceMemberSummary[]
+  role: WorkspaceRole
+}
+
+export interface CreateWorkspaceRequest {
+  name: string
+}
+
+export interface UpdateWorkspaceRequest {
+  name: string
+}
+
+export interface JoinWorkspaceRequest {
+  inviteCode: string
+}
+
+export interface UpdateMemberRoleRequest {
+  role: WorkspaceRole
 }
 
 export interface BoardSummary {

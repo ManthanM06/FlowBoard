@@ -4,6 +4,8 @@ import { fetchHealth } from '../shared/lib/api'
 import { useAuthStore } from '../features/auth/stores/authStore'
 import { fetchMe, logoutUser } from '../features/auth/api/authApi'
 import { AuthModal } from '../features/auth/components/AuthModal'
+import { WorkspaceSwitcher } from '../features/workspaces/components/WorkspaceSwitcher'
+import { useWorkspaceStore } from '../features/workspaces/stores/workspaceStore'
 import {
   KanbanSquare,
   Database,
@@ -22,6 +24,7 @@ import {
 export const App: React.FC = () => {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false)
   const { user, isAuthenticated, initAuth, clearAuth, setUser } = useAuthStore()
+  const { activeWorkspace } = useWorkspaceStore()
 
   useEffect(() => {
     initAuth()
@@ -65,16 +68,21 @@ export const App: React.FC = () => {
       {/* Top Navigation Bar */}
       <header className="border-b border-border-subtle bg-surface/80 backdrop-blur-sm sticky top-0 z-10 px-6 py-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-button bg-accent text-white flex items-center justify-center font-bold shadow-sm">
-              <KanbanSquare className="w-5 h-5" />
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-button bg-accent text-white flex items-center justify-center font-bold shadow-sm">
+                <KanbanSquare className="w-5 h-5" />
+              </div>
+              <div>
+                <span className="text-xl font-bold tracking-tight text-text-primary">FlowBoard</span>
+                <span className="ml-2 text-xs uppercase px-2 py-0.5 rounded-chip font-mono bg-accent-subtle text-accent font-semibold tracking-wider">
+                  Phase 2 Active
+                </span>
+              </div>
             </div>
-            <div>
-              <span className="text-xl font-bold tracking-tight text-text-primary">FlowBoard</span>
-              <span className="ml-2 text-xs uppercase px-2 py-0.5 rounded-chip font-mono bg-accent-subtle text-accent font-semibold tracking-wider">
-                Phase 1 Active
-              </span>
-            </div>
+
+            {/* Workspace Switcher */}
+            <WorkspaceSwitcher isAuthenticated={isAuthenticated} />
           </div>
 
           <div className="flex items-center gap-4 text-sm font-medium">
@@ -126,48 +134,48 @@ export const App: React.FC = () => {
           <div className="flex items-center gap-2 text-text-secondary text-sm font-mono">
             <span>Portfolio Architecture</span>
             <span>/</span>
-            <span className="text-text-primary font-semibold">Phase 1: Auth & User Management</span>
+            <span className="text-text-primary font-semibold">Phase 2: Workspaces & Roles</span>
           </div>
           <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-text-primary">
-            Secure Authentication & Session Lifecycle
+            Workspaces & Role-Based Access Control
           </h1>
           <p className="text-text-secondary max-w-2xl text-base leading-relaxed">
-            Stateless dual-token authentication implemented with NestJS Passport strategy, bcrypt
-            password hashing, refresh token database rotation, and automated silent refresh on 401.
+            Multi-workspace tenant separation, unique invitation codes, and reusable role-gated access control
+            distinguishing Workspace Admins from Members.
           </p>
         </section>
 
         {/* Status Diagnostics Grid */}
         <section className="grid grid-cols-1 md:grid-cols-4 gap-5">
-          {/* Card 1: Auth Status */}
+          {/* Card 1: Workspace & RBAC Status */}
           <div className="bg-surface border border-border-subtle rounded-card p-5 shadow-card hover:border-accent transition-colors flex flex-col justify-between">
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-mono uppercase text-text-secondary tracking-wider">Session Guard</span>
+                <span className="text-xs font-mono uppercase text-text-secondary tracking-wider">Tenant & RBAC</span>
                 <KeyRound className="w-4 h-4 text-text-secondary" />
               </div>
               <div className="text-lg font-semibold text-text-primary flex items-center gap-2">
-                {isAuthenticated ? (
+                {activeWorkspace ? (
                   <>
                     <CheckCircle2 className="w-5 h-5 text-status-success" />
-                    <span className="truncate">Authenticated</span>
+                    <span className="truncate">{activeWorkspace.name}</span>
                   </>
                 ) : (
                   <>
                     <User className="w-5 h-5 text-priority-medium" />
-                    <span>Guest Session</span>
+                    <span>No Workspace</span>
                   </>
                 )}
               </div>
               <p className="text-xs text-text-secondary">
-                {isAuthenticated
-                  ? `Signed in as ${user?.email}. JWT bearer attached to outbound requests.`
-                  : 'No active session. Click "Sign In / Register" in the navigation bar.'}
+                {activeWorkspace
+                  ? `Active role: ${activeWorkspace.role}. ${activeWorkspace.members.length} team member(s) enrolled.`
+                  : 'Select or create a workspace using the dropdown above.'}
               </p>
             </div>
             <div className="mt-4 pt-3 border-t border-border-subtle flex items-center justify-between text-xs font-mono text-text-secondary">
-              <span>Guard</span>
-              <code className="text-accent font-semibold">JwtAuthGuard</code>
+              <span>RBAC Guard</span>
+              <code className="text-accent font-semibold">WorkspaceRolesGuard</code>
             </div>
           </div>
 

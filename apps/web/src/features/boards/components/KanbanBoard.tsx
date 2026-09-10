@@ -291,13 +291,13 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({ workspace }) => {
           onDragStart={handleDragStart}
           onDragEnd={handleDragEnd}
         >
-          <div className="flex-1 overflow-x-auto overflow-y-hidden p-6">
+          <div className="flex-1 overflow-x-auto overflow-y-hidden p-3 sm:p-6 snap-x snap-mandatory">
             {isLoading && !activeBoard ? (
               <div className="h-full flex items-center justify-center">
                 <Loader2 className="w-6 h-6 animate-spin text-accent" />
               </div>
             ) : activeBoard ? (
-            <div className="flex items-start gap-5 h-full min-w-max pb-4">
+            <div className="flex items-start gap-3 sm:gap-5 h-full min-w-max pb-4">
               {/* Sorted Columns */}
               {activeBoard.columns.map((column) => (
                 <KanbanColumn
@@ -311,7 +311,7 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({ workspace }) => {
 
               {/* Add Column (Admin Only) */}
               {isAdmin && (
-                <div className="w-80 shrink-0">
+                <div className="w-[85vw] sm:w-80 shrink-0 snap-center">
                   {isAddingColumn ? (
                     <div className="bg-surface border border-border-subtle rounded-card p-3.5 shadow-card animate-in fade-in zoom-in-95 duration-150">
                       <form onSubmit={handleAddColumn} className="space-y-3">

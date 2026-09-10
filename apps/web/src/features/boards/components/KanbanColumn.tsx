@@ -207,7 +207,7 @@ export const KanbanColumn: React.FC<KanbanColumnProps> = ({
 
   return (
     <>
-      <div className="w-80 shrink-0 bg-surface-muted/50 border border-border-subtle rounded-card flex flex-col max-h-[calc(100vh-13.5rem)] shadow-sm transition-all duration-200">
+      <div className="w-[85vw] sm:w-80 shrink-0 bg-surface-muted/50 border border-border-subtle rounded-card flex flex-col max-h-[calc(100vh-13.5rem)] shadow-sm transition-all duration-200 snap-center">
         {/* Column Header */}
         <div className="px-4 py-3 flex items-center justify-between border-b border-border-subtle bg-surface/80 rounded-t-card">
           <div className="flex items-center gap-2.5 min-w-0 flex-1 mr-2">

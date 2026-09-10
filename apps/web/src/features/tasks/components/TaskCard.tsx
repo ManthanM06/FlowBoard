@@ -1,13 +1,40 @@
 import React from 'react'
-import { Calendar, User } from 'lucide-react'
+import { useSortable } from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
+import { Calendar, User, GripVertical } from 'lucide-react'
 import { TaskSummary, TaskPriority } from '@flowboard/shared-types'
 
 interface TaskCardProps {
   task: TaskSummary
   onClick: () => void
+  isOverlay?: boolean
 }
 
-export const TaskCard: React.FC<TaskCardProps> = ({ task, onClick }) => {
+export const TaskCard: React.FC<TaskCardProps> = ({
+  task,
+  onClick,
+  isOverlay = false,
+}) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
+    id: task.id,
+    data: {
+      type: 'Task',
+      task,
+    },
+    disabled: isOverlay,
+  })
+
+  const style: React.CSSProperties = {
+    transform: CSS.Translate.toString(transform),
+    transition,
+  }
   const getPriorityBorderClass = (priority: TaskPriority) => {
     switch (priority) {
       case TaskPriority.HIGH:
@@ -77,14 +104,21 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, onClick }) => {
 
   return (
     <div
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      {...listeners}
       onClick={onClick}
       className={`bg-surface rounded-card p-3.5 border border-border-subtle border-l-[3px] ${getPriorityBorderClass(
         task.priority
-      )} shadow-card hover:shadow-card-hover hover:-translate-y-0.5 transition-all duration-150 cursor-pointer space-y-2.5 group`}
+      )} shadow-card hover:shadow-card-hover hover:-translate-y-0.5 transition-all duration-150 cursor-pointer space-y-2.5 group relative ${
+        isDragging ? 'opacity-30 border-dashed border-accent' : ''
+      } ${isOverlay ? 'rotate-1 shadow-elevation scale-105 z-50 ring-2 ring-accent/20 cursor-grabbing' : ''}`}
     >
-      {/* Top row: Priority badge */}
+      {/* Top row: Priority badge + drag grip */}
       <div className="flex items-center justify-between">
         {getPriorityBadge(task.priority)}
+        <GripVertical className="w-3.5 h-3.5 text-text-secondary/40 opacity-0 group-hover:opacity-100 transition-opacity" />
       </div>
 
       {/* Task Title */}

@@ -223,6 +223,83 @@ describe('TasksService', () => {
     })
   })
 
+  describe('moveTask', () => {
+    it('should move task to target column and calculate fractional order', async () => {
+      const now = new Date()
+
+      mockPrisma.task.findUnique
+        .mockResolvedValueOnce({
+          id: 'task-1',
+          columnId: 'col-1',
+          column: { board: { workspaceId: 'ws-1' } },
+        }) // initial existing task
+        .mockResolvedValueOnce({ id: 'prev-1', order: 1000 }) // previous task
+        .mockResolvedValueOnce({ id: 'next-1', order: 2000 }) // next task
+
+      mockPrisma.workspaceMember.findUnique.mockResolvedValueOnce({
+        userId: 'usr-1',
+        workspaceId: 'ws-1',
+      })
+
+      mockPrisma.column.findUnique.mockResolvedValueOnce({
+        id: 'col-2',
+        board: { workspaceId: 'ws-1' },
+      })
+
+      mockPrisma.task.update.mockResolvedValueOnce({
+        id: 'task-1',
+        columnId: 'col-2',
+        title: 'Task A',
+        description: null,
+        priority: TaskPriority.MEDIUM,
+        dueDate: null,
+        order: 1500,
+        createdAt: now,
+        updatedAt: now,
+        assignees: [],
+      })
+
+      const res = await service.moveTask('task-1', 'usr-1', {
+        targetColumnId: 'col-2',
+        previousTaskId: 'prev-1',
+        nextTaskId: 'next-1',
+      })
+
+      expect(res.columnId).toBe('col-2')
+      expect(res.order).toBe(1500)
+      expect(mockPrisma.task.update).toHaveBeenCalledWith({
+        where: { id: 'task-1' },
+        data: {
+          columnId: 'col-2',
+          order: 1500,
+        },
+        include: expect.any(Object),
+      })
+    })
+
+    it('should throw ForbiddenException if target column is in another workspace', async () => {
+      mockPrisma.task.findUnique.mockResolvedValueOnce({
+        id: 'task-1',
+        columnId: 'col-1',
+        column: { board: { workspaceId: 'ws-1' } },
+      })
+
+      mockPrisma.workspaceMember.findUnique.mockResolvedValueOnce({
+        userId: 'usr-1',
+        workspaceId: 'ws-1',
+      })
+
+      mockPrisma.column.findUnique.mockResolvedValueOnce({
+        id: 'col-other',
+        board: { workspaceId: 'ws-foreign' },
+      })
+
+      await expect(
+        service.moveTask('task-1', 'usr-1', { targetColumnId: 'col-other' })
+      ).rejects.toThrow(ForbiddenException)
+    })
+  })
+
   describe('deleteTask', () => {
     it('should allow workspace member to delete task', async () => {
       mockPrisma.task.findUnique.mockResolvedValueOnce({

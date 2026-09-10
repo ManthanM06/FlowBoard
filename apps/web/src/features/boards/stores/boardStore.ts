@@ -48,9 +48,14 @@ interface BoardState {
   addTask: (task: TaskSummary) => void
   updateTask: (task: TaskSummary) => void
   removeTask: (taskId: string, columnId?: string) => void
+  moveTaskLocally: (
+    taskId: string,
+    targetColumnId: string,
+    targetIndex: number
+  ) => BoardDetail | null
 }
 
-export const useBoardStore = create<BoardState>((set) => ({
+export const useBoardStore = create<BoardState>((set, get) => ({
   boards: [],
   activeBoard: null,
   isLoading: false,
@@ -180,4 +185,46 @@ export const useBoardStore = create<BoardState>((set) => ({
         },
       }
     }),
+
+  moveTaskLocally: (taskId, targetColumnId, targetIndex) => {
+    const currentBoard = get().activeBoard
+    if (!currentBoard) return null
+
+    let movedTask: TaskSummary | null = null
+
+    // First pass: extract task from its current column
+    const columnsWithoutTask = currentBoard.columns.map((col) => {
+      const found = (col.tasks || []).find((t) => t.id === taskId)
+      if (found) {
+        movedTask = { ...found, columnId: targetColumnId }
+        return {
+          ...col,
+          tasks: col.tasks.filter((t) => t.id !== taskId),
+        }
+      }
+      return col
+    })
+
+    if (!movedTask) return null
+
+    // Second pass: insert into target column at targetIndex
+    const newColumns = columnsWithoutTask.map((col) => {
+      if (col.id === targetColumnId) {
+        const tasks = [...(col.tasks || [])]
+        const clampedIndex = Math.max(0, Math.min(targetIndex, tasks.length))
+        tasks.splice(clampedIndex, 0, movedTask!)
+        return { ...col, tasks }
+      }
+      return col
+    })
+
+    set({
+      activeBoard: {
+        ...currentBoard,
+        columns: newColumns,
+      },
+    })
+
+    return currentBoard
+  },
 }))

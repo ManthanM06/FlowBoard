@@ -9,6 +9,11 @@ import {
   Loader2,
   Maximize2,
 } from 'lucide-react'
+import { useDroppable } from '@dnd-kit/core'
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable'
 import {
   ColumnDetail,
   ColumnSummary,
@@ -53,6 +58,14 @@ export const KanbanColumn: React.FC<KanbanColumnProps> = ({
   const menuRef = useRef<HTMLDivElement>(null)
   const nameInputRef = useRef<HTMLInputElement>(null)
   const quickInputRef = useRef<HTMLInputElement>(null)
+
+  const { setNodeRef: setDroppableRef, isOver } = useDroppable({
+    id: column.id,
+    data: {
+      type: 'Column',
+      column,
+    },
+  })
 
   const {
     updateColumn: updateInStore,
@@ -252,7 +265,12 @@ export const KanbanColumn: React.FC<KanbanColumnProps> = ({
         </div>
 
         {/* Tasks Container */}
-        <div className="flex-1 overflow-y-auto p-3 space-y-2.5 min-h-[140px]">
+        <div
+          ref={setDroppableRef}
+          className={`flex-1 overflow-y-auto p-3 space-y-2.5 min-h-[140px] transition-colors rounded-b-none ${
+            isOver ? 'bg-accent/5 ring-1 ring-inset ring-accent/30' : ''
+          }`}
+        >
           {/* Quick Add Composer when active */}
           {isQuickAdding && (
             <div className="bg-surface rounded-card p-3 border border-accent shadow-md space-y-2 animate-in fade-in zoom-in-95 duration-100">
@@ -312,14 +330,19 @@ export const KanbanColumn: React.FC<KanbanColumnProps> = ({
             </div>
           )}
 
-          {/* Render Task Cards */}
-          {tasks.map((task) => (
-            <TaskCard
-              key={task.id}
-              task={task}
-              onClick={() => setSelectedTask(task)}
-            />
-          ))}
+          {/* Render Task Cards in SortableContext */}
+          <SortableContext
+            items={tasks.map((t) => t.id)}
+            strategy={verticalListSortingStrategy}
+          >
+            {tasks.map((task) => (
+              <TaskCard
+                key={task.id}
+                task={task}
+                onClick={() => setSelectedTask(task)}
+              />
+            ))}
+          </SortableContext>
 
           {/* Empty State when no tasks and not adding */}
           {tasks.length === 0 && !isQuickAdding && (

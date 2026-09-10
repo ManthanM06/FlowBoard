@@ -3,7 +3,7 @@
 > Update this as you go — check it off, don't rewrite history. Keep entries short; details belong in commits/PRs, not here.
 
 ## Currently working on
-- [ ] Phase 5 — Drag & Drop (@dnd-kit integration, PATCH /tasks/:id/move with fractional-order reordering transaction, optimistic UI update + rollback)
+- [ ] Phase 6 — Real-Time Sync (NestJS Socket.IO gateway, board room subscription board:<id>, JWT handshake auth, broadcast task/board events, client auto-sync)
 
 ## Completed
 - [x] Phase 0 — Setup (Monorepo scaffolding, Docker Compose Postgres & Redis, Prisma schema, NestJS API with health check, React + Vite frontend with Studio Ledger design system, GitHub Actions CI skeleton)
@@ -11,6 +11,7 @@
 - [x] Phase 2 — Workspaces & Roles (Workspace + WorkspaceMember models, invite code generation & join flow, WorkspaceRolesGuard enforcing Admin vs Member permissions, workspace switcher dropdown, create/join modals, and team members roster)
 - [x] Phase 3 — Boards & Columns (Board + Column CRUD with Admin-only creation/deletion/reordering, default column seeding To Do/In Progress/Done, BoardHeader switcher, KanbanColumn with rename/delete, horizontal scrolling Kanban board view, and localStorage board persistence)
 - [x] Phase 4 — Task CRUD (Task model + CRUD endpoints, fractional order indexing, TaskCard with Studio Ledger 3px priority border, quick inline composer, CreateTaskModal, and TaskDetailModal)
+- [x] Phase 5 — Drag & Drop (@dnd-kit cross-column and within-column reordering, PATCH /tasks/:id/move with fractional-order calculation and rebalancing fallback, optimistic UI updates with automatic rollback on error, and DragOverlay preview)
 
 ## Phase checklist
 - [x] Phase 0 — Setup
@@ -18,7 +19,7 @@
 - [x] Phase 2 — Workspaces & Roles
 - [x] Phase 3 — Boards & Columns
 - [x] Phase 4 — Task CRUD
-- [ ] Phase 5 — Drag & Drop
+- [x] Phase 5 — Drag & Drop
 - [ ] Phase 6 — Real-Time Sync
 - [ ] Phase 7 — Comments & Notifications
 - [ ] Phase 8 — Search, Filters & Dashboard

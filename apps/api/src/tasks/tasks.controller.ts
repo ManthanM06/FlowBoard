@@ -13,6 +13,7 @@ import {
 import { TasksService } from './tasks.service'
 import { CreateTaskDto } from './dto/create-task.dto'
 import { UpdateTaskDto } from './dto/update-task.dto'
+import { MoveTaskDto } from './dto/move-task.dto'
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard'
 import { CurrentUser } from '../auth/decorators/current-user.decorator'
 
@@ -48,6 +49,16 @@ export class TasksController {
     @Body() dto: UpdateTaskDto
   ) {
     const data = await this.tasksService.updateTask(id, userId, dto)
+    return { success: true, data }
+  }
+
+  @Patch('tasks/:id/move')
+  async moveTask(
+    @Param('id') id: string,
+    @CurrentUser('id') userId: string,
+    @Body() dto: MoveTaskDto
+  ) {
+    const data = await this.tasksService.moveTask(id, userId, dto)
     return { success: true, data }
   }
 

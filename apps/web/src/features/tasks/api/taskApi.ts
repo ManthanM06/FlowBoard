@@ -4,6 +4,7 @@ import {
   TaskSummary,
   CreateTaskRequest,
   UpdateTaskRequest,
+  MoveTaskRequest,
 } from '@flowboard/shared-types'
 
 export const createTask = async (
@@ -35,6 +36,18 @@ export const updateTask = async (
     req
   )
   if (!res.data.data) throw new Error('Failed to update task')
+  return res.data.data
+}
+
+export const moveTask = async (
+  taskId: string,
+  req: MoveTaskRequest
+): Promise<TaskSummary> => {
+  const res = await api.patch<ApiResponse<TaskSummary>>(
+    `/tasks/${taskId}/move`,
+    req
+  )
+  if (!res.data.data) throw new Error('Failed to move task')
   return res.data.data
 }
 

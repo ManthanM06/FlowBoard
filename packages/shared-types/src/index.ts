@@ -135,6 +135,13 @@ export interface UpdateTaskRequest {
   order?: number
 }
 
+export interface MoveTaskRequest {
+  targetColumnId: string
+  targetOrder?: number
+  previousTaskId?: string
+  nextTaskId?: string
+}
+
 export interface CommentSummary {
   id: string
   taskId: string

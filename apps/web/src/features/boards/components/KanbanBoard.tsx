@@ -158,6 +158,8 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({ workspace }) => {
                 key={column.id}
                 column={column}
                 isAdmin={isAdmin}
+                allColumns={activeBoard.columns}
+                workspaceMembers={workspace.members}
               />
             ))}
 

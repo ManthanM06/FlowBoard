@@ -1,5 +1,11 @@
 import { create } from 'zustand'
-import { BoardDetail, BoardSummary, ColumnSummary } from '@flowboard/shared-types'
+import {
+  BoardDetail,
+  BoardSummary,
+  ColumnDetail,
+  ColumnSummary,
+  TaskSummary,
+} from '@flowboard/shared-types'
 
 const getBoardStorageKey = (workspaceId: string) =>
   `flowboard_active_board_${workspaceId}`
@@ -39,6 +45,9 @@ interface BoardState {
   addColumn: (col: ColumnSummary) => void
   updateColumn: (col: ColumnSummary) => void
   removeColumn: (columnId: string) => void
+  addTask: (task: TaskSummary) => void
+  updateTask: (task: TaskSummary) => void
+  removeTask: (taskId: string, columnId?: string) => void
 }
 
 export const useBoardStore = create<BoardState>((set) => ({
@@ -63,7 +72,11 @@ export const useBoardStore = create<BoardState>((set) => ({
   addColumn: (col) =>
     set((state) => {
       if (!state.activeBoard) return state
-      const columns = [...state.activeBoard.columns, col].sort(
+      const columnWithTasks: ColumnDetail = {
+        ...col,
+        tasks: [],
+      }
+      const columns = [...state.activeBoard.columns, columnWithTasks].sort(
         (a, b) => a.order - b.order
       )
       return {
@@ -78,7 +91,9 @@ export const useBoardStore = create<BoardState>((set) => ({
     set((state) => {
       if (!state.activeBoard) return state
       const columns = state.activeBoard.columns
-        .map((c) => (c.id === col.id ? col : c))
+        .map((c) =>
+          c.id === col.id ? { ...col, tasks: c.tasks || [] } : c
+        )
         .sort((a, b) => a.order - b.order)
       return {
         activeBoard: {
@@ -95,6 +110,73 @@ export const useBoardStore = create<BoardState>((set) => ({
         activeBoard: {
           ...state.activeBoard,
           columns: state.activeBoard.columns.filter((c) => c.id !== columnId),
+        },
+      }
+    }),
+
+  addTask: (task) =>
+    set((state) => {
+      if (!state.activeBoard) return state
+      const columns = state.activeBoard.columns.map((col) => {
+        if (col.id === task.columnId) {
+          const tasks = [...(col.tasks || []), task].sort(
+            (a, b) => a.order - b.order
+          )
+          return { ...col, tasks }
+        }
+        return col
+      })
+      return {
+        activeBoard: {
+          ...state.activeBoard,
+          columns,
+        },
+      }
+    }),
+
+  updateTask: (task) =>
+    set((state) => {
+      if (!state.activeBoard) return state
+      const columns = state.activeBoard.columns.map((col) => {
+        // If this is the target column
+        if (col.id === task.columnId) {
+          const existingIndex = (col.tasks || []).findIndex(
+            (t) => t.id === task.id
+          )
+          let tasks: TaskSummary[]
+          if (existingIndex >= 0) {
+            tasks = col.tasks.map((t) => (t.id === task.id ? task : t))
+          } else {
+            tasks = [...(col.tasks || []), task]
+          }
+          tasks.sort((a, b) => a.order - b.order)
+          return { ...col, tasks }
+        }
+        // If task was in a different column previously, remove it
+        return {
+          ...col,
+          tasks: (col.tasks || []).filter((t) => t.id !== task.id),
+        }
+      })
+      return {
+        activeBoard: {
+          ...state.activeBoard,
+          columns,
+        },
+      }
+    }),
+
+  removeTask: (taskId) =>
+    set((state) => {
+      if (!state.activeBoard) return state
+      const columns = state.activeBoard.columns.map((col) => ({
+        ...col,
+        tasks: (col.tasks || []).filter((t) => t.id !== taskId),
+      }))
+      return {
+        activeBoard: {
+          ...state.activeBoard,
+          columns,
         },
       }
     }),

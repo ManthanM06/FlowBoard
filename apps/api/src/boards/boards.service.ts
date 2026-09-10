@@ -12,6 +12,7 @@ import {
   BoardSummary,
   ColumnSummary,
   WorkspaceRole,
+  TaskPriority,
 } from '@flowboard/shared-types'
 
 const DEFAULT_COLUMNS = [
@@ -93,6 +94,7 @@ export class BoardsService {
           order: c.order,
           createdAt: c.createdAt.toISOString(),
           updatedAt: c.updatedAt.toISOString(),
+          tasks: [],
         })),
       }
     })
@@ -124,6 +126,25 @@ export class BoardsService {
       include: {
         columns: {
           orderBy: { order: 'asc' },
+          include: {
+            tasks: {
+              orderBy: { order: 'asc' },
+              include: {
+                assignees: {
+                  include: {
+                    user: {
+                      select: {
+                        id: true,
+                        email: true,
+                        name: true,
+                        avatarUrl: true,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
         },
       },
     })
@@ -147,6 +168,23 @@ export class BoardsService {
         order: c.order,
         createdAt: c.createdAt.toISOString(),
         updatedAt: c.updatedAt.toISOString(),
+        tasks: (c.tasks || []).map((t) => ({
+          id: t.id,
+          columnId: t.columnId,
+          title: t.title,
+          description: t.description,
+          priority: t.priority as TaskPriority,
+          dueDate: t.dueDate ? t.dueDate.toISOString() : null,
+          order: t.order,
+          createdAt: t.createdAt.toISOString(),
+          updatedAt: t.updatedAt.toISOString(),
+          assignees: (t.assignees || []).map((a) => ({
+            id: a.user.id,
+            email: a.user.email,
+            name: a.user.name,
+            avatarUrl: a.user.avatarUrl,
+          })),
+        })),
       })),
     }
   }
@@ -178,6 +216,25 @@ export class BoardsService {
       include: {
         columns: {
           orderBy: { order: 'asc' },
+          include: {
+            tasks: {
+              orderBy: { order: 'asc' },
+              include: {
+                assignees: {
+                  include: {
+                    user: {
+                      select: {
+                        id: true,
+                        email: true,
+                        name: true,
+                        avatarUrl: true,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
         },
       },
     })
@@ -195,6 +252,23 @@ export class BoardsService {
         order: c.order,
         createdAt: c.createdAt.toISOString(),
         updatedAt: c.updatedAt.toISOString(),
+        tasks: (c.tasks || []).map((t) => ({
+          id: t.id,
+          columnId: t.columnId,
+          title: t.title,
+          description: t.description,
+          priority: t.priority as TaskPriority,
+          dueDate: t.dueDate ? t.dueDate.toISOString() : null,
+          order: t.order,
+          createdAt: t.createdAt.toISOString(),
+          updatedAt: t.updatedAt.toISOString(),
+          assignees: (t.assignees || []).map((a) => ({
+            id: a.user.id,
+            email: a.user.email,
+            name: a.user.name,
+            avatarUrl: a.user.avatarUrl,
+          })),
+        })),
       })),
     }
   }

@@ -73,8 +73,25 @@ export interface ColumnSummary {
   updatedAt?: string
 }
 
+export interface TaskSummary {
+  id: string
+  columnId: string
+  title: string
+  description?: string | null
+  priority: TaskPriority
+  dueDate?: string | null
+  order: number
+  assignees?: UserSummary[]
+  createdAt?: string
+  updatedAt?: string
+}
+
+export interface ColumnDetail extends ColumnSummary {
+  tasks: TaskSummary[]
+}
+
 export interface BoardDetail extends BoardSummary {
-  columns: ColumnSummary[]
+  columns: ColumnDetail[]
 }
 
 export interface CreateBoardRequest {
@@ -99,15 +116,23 @@ export interface ReorderColumnsRequest {
   columnIds: string[]
 }
 
-export interface TaskSummary {
-  id: string
-  columnId: string
+export interface CreateTaskRequest {
   title: string
   description?: string | null
-  priority: TaskPriority
+  priority?: TaskPriority
   dueDate?: string | null
-  order: number
-  assignees?: UserSummary[]
+  assigneeIds?: string[]
+  order?: number
+}
+
+export interface UpdateTaskRequest {
+  title?: string
+  description?: string | null
+  priority?: TaskPriority
+  dueDate?: string | null
+  assigneeIds?: string[]
+  columnId?: string
+  order?: number
 }
 
 export interface CommentSummary {

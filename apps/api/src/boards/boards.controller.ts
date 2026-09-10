@@ -20,11 +20,6 @@ import {
 } from './dto/column.dto'
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard'
 import { CurrentUser } from '../auth/decorators/current-user.decorator'
-import {
-  BoardDetail,
-  BoardSummary,
-  ColumnSummary,
-} from '@flowboard/shared-types'
 
 @Controller()
 @UseGuards(JwtAuthGuard)

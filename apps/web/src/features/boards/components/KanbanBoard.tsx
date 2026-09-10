@@ -34,6 +34,7 @@ import { BoardHeader } from './BoardHeader'
 import { KanbanColumn } from './KanbanColumn'
 import { TaskCard } from '../../tasks/components/TaskCard'
 import { CreateBoardModal } from './CreateBoardModal'
+import { useBoardSocket } from '../../../shared/lib/socket'
 
 interface KanbanBoardProps {
   workspace: WorkspaceDetail
@@ -57,6 +58,9 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({ workspace }) => {
     addColumn,
     moveTaskLocally,
   } = useBoardStore()
+
+  // Real-time synchronization
+  useBoardSocket(activeBoard?.id ?? null)
 
   const sensors = useSensors(
     useSensor(PointerSensor, {

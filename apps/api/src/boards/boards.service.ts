@@ -2,8 +2,10 @@ import {
   Injectable,
   NotFoundException,
   ForbiddenException,
+  Optional,
 } from '@nestjs/common'
 import { PrismaService } from '../prisma/prisma.service'
+import { RealtimeGateway } from '../realtime/realtime.gateway'
 import { CreateBoardDto } from './dto/create-board.dto'
 import { UpdateBoardDto } from './dto/update-board.dto'
 import { CreateColumnDto, UpdateColumnDto } from './dto/column.dto'
@@ -23,7 +25,10 @@ const DEFAULT_COLUMNS = [
 
 @Injectable()
 export class BoardsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    @Optional() private readonly realtime?: RealtimeGateway
+  ) {}
 
   private async getMembership(workspaceId: string, userId: string) {
     const membership = await this.prisma.workspaceMember.findUnique({
@@ -334,7 +339,7 @@ export class BoardsService {
       },
     })
 
-    return {
+    const result: ColumnSummary = {
       id: column.id,
       boardId: column.boardId,
       name: column.name,
@@ -342,6 +347,9 @@ export class BoardsService {
       createdAt: column.createdAt.toISOString(),
       updatedAt: column.updatedAt.toISOString(),
     }
+
+    this.realtime?.emitColumnCreated(boardId, result)
+    return result
   }
 
   async updateColumn(
@@ -372,7 +380,7 @@ export class BoardsService {
       },
     })
 
-    return {
+    const result: ColumnSummary = {
       id: updated.id,
       boardId: updated.boardId,
       name: updated.name,
@@ -380,6 +388,9 @@ export class BoardsService {
       createdAt: updated.createdAt.toISOString(),
       updatedAt: updated.updatedAt.toISOString(),
     }
+
+    this.realtime?.emitColumnUpdated(column.boardId, result)
+    return result
   }
 
   async deleteColumn(
@@ -405,6 +416,7 @@ export class BoardsService {
       where: { id: columnId },
     })
 
+    this.realtime?.emitColumnDeleted(column.boardId, columnId)
     return { success: true }
   }
 

@@ -7,6 +7,7 @@ import { AuthModule } from './auth/auth.module'
 import { WorkspacesModule } from './workspaces/workspaces.module'
 import { BoardsModule } from './boards/boards.module'
 import { TasksModule } from './tasks/tasks.module'
+import { RealtimeModule } from './realtime/realtime.module'
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { TasksModule } from './tasks/tasks.module'
     WorkspacesModule,
     BoardsModule,
     TasksModule,
+    RealtimeModule,
   ],
   controllers: [AppController],
   providers: [AppService],

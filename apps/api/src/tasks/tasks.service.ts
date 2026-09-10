@@ -3,8 +3,10 @@ import {
   NotFoundException,
   ForbiddenException,
   BadRequestException,
+  Optional,
 } from '@nestjs/common'
 import { PrismaService } from '../prisma/prisma.service'
+import { RealtimeGateway } from '../realtime/realtime.gateway'
 import { CreateTaskDto } from './dto/create-task.dto'
 import { UpdateTaskDto } from './dto/update-task.dto'
 import { MoveTaskDto } from './dto/move-task.dto'
@@ -16,7 +18,10 @@ import {
 
 @Injectable()
 export class TasksService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    @Optional() private readonly realtime?: RealtimeGateway
+  ) {}
 
   private async requireWorkspaceMembership(
     workspaceId: string,
@@ -109,7 +114,9 @@ export class TasksService {
       throw new BadRequestException('Failed to create task')
     }
 
-    return this.mapTaskToSummary(task)
+    const summary = this.mapTaskToSummary(task)
+    this.realtime?.emitTaskCreated(column.boardId, summary)
+    return summary
   }
 
   async findById(taskId: string, userId: string): Promise<TaskSummary> {
@@ -238,7 +245,9 @@ export class TasksService {
       throw new BadRequestException('Failed to update task')
     }
 
-    return this.mapTaskToSummary(updated)
+    const summary = this.mapTaskToSummary(updated)
+    this.realtime?.emitTaskUpdated(existing.column.boardId, summary)
+    return summary
   }
 
   async moveTask(
@@ -331,7 +340,9 @@ export class TasksService {
                 },
               },
             })
-            return this.mapTaskToSummary(updated!)
+            const summary = this.mapTaskToSummary(updated!)
+            this.realtime?.emitTaskMoved(existing.column.boardId, summary)
+            return summary
           }
         } else if (prevTask) {
           newOrder = prevTask.order + 1000
@@ -380,7 +391,9 @@ export class TasksService {
       },
     })
 
-    return this.mapTaskToSummary(updated)
+    const summary = this.mapTaskToSummary(updated)
+    this.realtime?.emitTaskMoved(existing.column.boardId, summary)
+    return summary
   }
 
   async deleteTask(
@@ -407,6 +420,11 @@ export class TasksService {
 
     await this.prisma.task.delete({
       where: { id: taskId },
+    })
+
+    this.realtime?.emitTaskDeleted(existing.column.boardId, {
+      taskId,
+      columnId: existing.columnId,
     })
 
     return { success: true }

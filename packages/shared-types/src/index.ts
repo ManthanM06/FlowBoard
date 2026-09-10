@@ -207,7 +207,11 @@ export enum SocketEvent {
   TASK_UPDATED = 'task.updated',
   TASK_MOVED = 'task.moved',
   TASK_DELETED = 'task.deleted',
+  COLUMN_CREATED = 'column.created',
+  COLUMN_UPDATED = 'column.updated',
+  COLUMN_DELETED = 'column.deleted',
   COMMENT_ADDED = 'comment.added',
+  NOTIFICATION_RECEIVED = 'notification.received',
   BOARD_JOIN = 'board.join',
   BOARD_LEAVE = 'board.leave',
 }

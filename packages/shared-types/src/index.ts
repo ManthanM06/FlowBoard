@@ -61,6 +61,7 @@ export interface BoardSummary {
   workspaceId: string
   name: string
   createdAt: string
+  updatedAt?: string
 }
 
 export interface ColumnSummary {
@@ -68,6 +69,34 @@ export interface ColumnSummary {
   boardId: string
   name: string
   order: number
+  createdAt?: string
+  updatedAt?: string
+}
+
+export interface BoardDetail extends BoardSummary {
+  columns: ColumnSummary[]
+}
+
+export interface CreateBoardRequest {
+  name: string
+}
+
+export interface UpdateBoardRequest {
+  name: string
+}
+
+export interface CreateColumnRequest {
+  name: string
+  order?: number
+}
+
+export interface UpdateColumnRequest {
+  name?: string
+  order?: number
+}
+
+export interface ReorderColumnsRequest {
+  columnIds: string[]
 }
 
 export interface TaskSummary {

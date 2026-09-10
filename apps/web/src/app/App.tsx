@@ -6,6 +6,7 @@ import { fetchMe, logoutUser } from '../features/auth/api/authApi'
 import { AuthModal } from '../features/auth/components/AuthModal'
 import { WorkspaceSwitcher } from '../features/workspaces/components/WorkspaceSwitcher'
 import { useWorkspaceStore } from '../features/workspaces/stores/workspaceStore'
+import { KanbanBoard } from '../features/boards/components/KanbanBoard'
 import {
   KanbanSquare,
   Database,
@@ -76,7 +77,7 @@ export const App: React.FC = () => {
               <div>
                 <span className="text-xl font-bold tracking-tight text-text-primary">FlowBoard</span>
                 <span className="ml-2 text-xs uppercase px-2 py-0.5 rounded-chip font-mono bg-accent-subtle text-accent font-semibold tracking-wider">
-                  Phase 2 Active
+                  Phase 3 Active
                 </span>
               </div>
             </div>
@@ -128,8 +129,22 @@ export const App: React.FC = () => {
         </div>
       </header>
 
-      {/* Main Container */}
-      <main className="flex-1 max-w-7xl mx-auto w-full px-6 py-8 space-y-10">
+      {/* Main Content View */}
+      {isAuthenticated && activeWorkspace ? (
+        <KanbanBoard workspace={activeWorkspace} />
+      ) : isAuthenticated && !activeWorkspace ? (
+        <main className="flex-1 flex flex-col items-center justify-center p-12 text-center bg-canvas">
+          <div className="w-16 h-16 rounded-card bg-surface border border-border-subtle flex items-center justify-center shadow-card mb-4 text-accent">
+            <KanbanSquare className="w-8 h-8" />
+          </div>
+          <h2 className="text-xl font-bold text-text-primary mb-2">No Workspace Selected</h2>
+          <p className="text-sm text-text-secondary max-w-md">
+            Select a workspace from the header dropdown or create a new workspace to start working with your Kanban boards.
+          </p>
+        </main>
+      ) : (
+        /* Unauthenticated Landing & Architecture View */
+        <main className="flex-1 max-w-7xl mx-auto w-full px-6 py-8 space-y-10">
         <section className="space-y-3">
           <div className="flex items-center gap-2 text-text-secondary text-sm font-mono">
             <span>Portfolio Architecture</span>
@@ -460,6 +475,7 @@ export const App: React.FC = () => {
           </div>
         </section>
       </main>
+      )}
 
       {/* Auth Modal */}
       <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />

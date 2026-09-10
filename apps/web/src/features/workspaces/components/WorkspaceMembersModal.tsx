@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import {
   X,
   Copy,
@@ -8,6 +8,7 @@ import {
   Trash2,
   AlertCircle,
   Loader2,
+  Link as LinkIcon,
 } from 'lucide-react'
 import { WorkspaceDetail, WorkspaceRole } from '@flowboard/shared-types'
 import {
@@ -28,27 +29,72 @@ export const WorkspaceMembersModal: React.FC<WorkspaceMembersModalProps> = ({
   onClose,
   workspace,
 }) => {
-  const [copied, setCopied] = useState(false)
+  const [copiedCode, setCopiedCode] = useState(false)
+  const [copiedLink, setCopiedLink] = useState(false)
   const [actionError, setActionError] = useState<string | null>(null)
   const [busyUserId, setBusyUserId] = useState<string | null>(null)
+  const [currentDetail, setCurrentDetail] = useState<WorkspaceDetail>(workspace)
+  const [isLoadingDetail, setIsLoadingDetail] = useState(false)
 
   const { setActiveWorkspace } = useWorkspaceStore()
-  const isAdmin = workspace.role === WorkspaceRole.ADMIN
+
+  // Always fetch latest workspace detail on open
+  useEffect(() => {
+    if (!isOpen || !workspace?.id) return
+    setCurrentDetail(workspace)
+    setIsLoadingDetail(true)
+
+    fetchWorkspaceDetail(workspace.id)
+      .then((detail) => {
+        setCurrentDetail(detail)
+        setActiveWorkspace(detail)
+      })
+      .catch((err) => {
+        console.error('Failed to refresh workspace details:', err)
+      })
+      .finally(() => {
+        setIsLoadingDetail(false)
+      })
+  }, [isOpen, workspace?.id, setActiveWorkspace])
+
+  // Close on Escape key
+  useEffect(() => {
+    if (!isOpen) return
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose()
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [isOpen, onClose])
 
   if (!isOpen) return null
 
+  const active = currentDetail || workspace
+  const isAdmin = active.role === WorkspaceRole.ADMIN
+  const inviteCode = active.inviteCode || ''
+
   const handleCopyCode = () => {
-    navigator.clipboard.writeText(workspace.inviteCode)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
+    if (!inviteCode) return
+    navigator.clipboard.writeText(inviteCode)
+    setCopiedCode(true)
+    setTimeout(() => setCopiedCode(false), 2000)
+  }
+
+  const handleCopyLink = () => {
+    if (!inviteCode) return
+    const inviteUrl = `${window.location.origin}?join=${encodeURIComponent(inviteCode)}`
+    navigator.clipboard.writeText(inviteUrl)
+    setCopiedLink(true)
+    setTimeout(() => setCopiedLink(false), 2000)
   }
 
   const handleRoleChange = async (userId: string, newRole: WorkspaceRole) => {
     setActionError(null)
     setBusyUserId(userId)
     try {
-      await updateMemberRole(workspace.id, userId, { role: newRole })
-      const refreshed = await fetchWorkspaceDetail(workspace.id)
+      await updateMemberRole(active.id, userId, { role: newRole })
+      const refreshed = await fetchWorkspaceDetail(active.id)
+      setCurrentDetail(refreshed)
       setActiveWorkspace(refreshed)
     } catch (err: unknown) {
       if (err instanceof Error) {
@@ -69,8 +115,9 @@ export const WorkspaceMembersModal: React.FC<WorkspaceMembersModalProps> = ({
     setActionError(null)
     setBusyUserId(userId)
     try {
-      await removeMember(workspace.id, userId)
-      const refreshed = await fetchWorkspaceDetail(workspace.id)
+      await removeMember(active.id, userId)
+      const refreshed = await fetchWorkspaceDetail(active.id)
+      setCurrentDetail(refreshed)
       setActiveWorkspace(refreshed)
     } catch (err: unknown) {
       if (err instanceof Error) {
@@ -84,11 +131,16 @@ export const WorkspaceMembersModal: React.FC<WorkspaceMembersModalProps> = ({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-text-primary/40 backdrop-blur-sm animate-in fade-in duration-150">
+    <div
+      onClick={onClose}
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#1C1A16]/30 animate-in fade-in duration-150"
+      aria-modal="true"
+      role="dialog"
+    >
+      {/* Modal Dialog Card (stop propagation so clicking inside doesn't close) */}
       <div
+        onClick={(e) => e.stopPropagation()}
         className="w-full max-w-lg bg-surface border border-border-subtle rounded-card shadow-modal overflow-hidden animate-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]"
-        role="dialog"
-        aria-modal="true"
       >
         {/* Header */}
         <div className="flex items-center justify-between px-6 pt-6 pb-4 border-b border-border-subtle shrink-0">
@@ -98,48 +150,77 @@ export const WorkspaceMembersModal: React.FC<WorkspaceMembersModalProps> = ({
                 Workspace Members
               </span>
               <span className="text-xs font-mono px-2 py-0.5 rounded-chip bg-accent-subtle text-accent font-semibold">
-                {workspace.role}
+                {active.role}
               </span>
             </div>
-            <h2 className="text-xl font-bold text-text-primary mt-0.5">{workspace.name}</h2>
+            <h2 className="text-xl font-bold text-text-primary mt-0.5">{active.name}</h2>
           </div>
           <button
             onClick={onClose}
             className="p-1.5 rounded-button text-text-secondary hover:text-text-primary hover:bg-canvas transition-colors"
+            title="Close (Esc)"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Invite Code Box */}
-        <div className="p-6 pb-2 border-b border-border-subtle bg-canvas/50 shrink-0">
-          <label className="block text-xs font-medium text-text-secondary mb-1.5">
-            Workspace Invite Code
-          </label>
-          <div className="flex items-center gap-2">
-            <code className="flex-1 px-3 py-2 text-xs font-mono bg-surface border border-border-subtle rounded-button text-text-primary select-all">
-              {workspace.inviteCode}
-            </code>
-            <button
-              onClick={handleCopyCode}
-              className="px-3 py-2 rounded-button bg-surface border border-border-subtle text-xs font-medium text-text-primary hover:bg-accent hover:text-white transition-colors flex items-center gap-1.5 shadow-sm"
-            >
-              {copied ? (
-                <>
-                  <Check className="w-3.5 h-3.5 text-status-success" />
-                  <span>Copied</span>
-                </>
-              ) : (
-                <>
-                  <Copy className="w-3.5 h-3.5" />
-                  <span>Copy</span>
-                </>
-              )}
-            </button>
+        <div className="p-6 pb-4 border-b border-border-subtle bg-canvas/40 shrink-0 space-y-3">
+          <div className="flex items-center justify-between">
+            <label className="block text-xs font-medium text-text-secondary">
+              Workspace Invite Code
+            </label>
+            {isLoadingDetail && (
+              <span className="text-[11px] text-text-secondary flex items-center gap-1">
+                <Loader2 className="w-3 h-3 animate-spin" /> Syncing...
+              </span>
+            )}
           </div>
-          <p className="text-[11px] text-text-secondary mt-1.5">
-            Teammates can enter this invite code in the workspace switcher to join with Member access.
-          </p>
+
+          {inviteCode ? (
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <div className="flex-1 px-3.5 py-2.5 bg-surface border border-accent/30 rounded-button text-text-primary font-mono text-sm font-semibold select-all tracking-wide text-accent">
+                  {inviteCode}
+                </div>
+                <button
+                  onClick={handleCopyCode}
+                  className="px-3.5 py-2.5 rounded-button bg-accent hover:bg-accent-hover text-white text-xs font-medium transition-colors flex items-center gap-1.5 shadow-sm shrink-0"
+                  title="Copy code to clipboard"
+                >
+                  {copiedCode ? (
+                    <>
+                      <Check className="w-4 h-4 text-emerald-300" />
+                      <span>Copied!</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="w-4 h-4" />
+                      <span>Copy Code</span>
+                    </>
+                  )}
+                </button>
+              </div>
+
+              <div className="flex items-center justify-between pt-1">
+                <p className="text-[11px] text-text-secondary">
+                  Share this code with teammates to join via the workspace switcher.
+                </p>
+                <button
+                  onClick={handleCopyLink}
+                  className="text-[11px] font-medium text-accent hover:underline flex items-center gap-1 shrink-0"
+                >
+                  <LinkIcon className="w-3 h-3" />
+                  <span>{copiedLink ? 'Link Copied!' : 'Copy Direct Link'}</span>
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="p-3 rounded-button bg-amber-50 border border-amber-200 text-priority-medium text-xs flex items-center gap-2">
+              <Loader2 className="w-4 h-4 animate-spin shrink-0" />
+              <span>Generating invite code...</span>
+            </div>
+          )}
         </div>
 
         {/* Members Roster */}
@@ -153,13 +234,13 @@ export const WorkspaceMembersModal: React.FC<WorkspaceMembersModalProps> = ({
 
           <div className="flex items-center justify-between">
             <span className="text-xs font-medium text-text-secondary uppercase font-mono tracking-wider">
-              Members ({workspace.members.length})
+              Enrolled Members ({active.members.length})
             </span>
           </div>
 
           <div className="divide-y divide-border-subtle border border-border-subtle rounded-button bg-surface overflow-hidden">
-            {workspace.members.map((member) => {
-              const isOwner = member.userId === workspace.ownerId
+            {active.members.map((member) => {
+              const isOwner = member.userId === active.ownerId
               const isBusy = busyUserId === member.userId
 
               return (
@@ -238,7 +319,10 @@ export const WorkspaceMembersModal: React.FC<WorkspaceMembersModalProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="p-4 border-t border-border-subtle bg-canvas/30 text-right shrink-0">
+        <div className="p-4 border-t border-border-subtle bg-canvas/30 flex items-center justify-between shrink-0">
+          <span className="text-[11px] text-text-secondary">
+            Press <kbd className="px-1.5 py-0.5 rounded bg-surface border border-border-subtle font-mono text-[10px]">Esc</kbd> or click outside to close
+          </span>
           <button
             onClick={onClose}
             className="px-4 py-2 rounded-button bg-surface border border-border-subtle text-xs font-medium text-text-primary hover:bg-canvas transition-colors shadow-sm"

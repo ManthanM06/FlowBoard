@@ -66,7 +66,7 @@ export const App: React.FC = () => {
   return (
     <div className="min-h-screen flex flex-col bg-canvas text-text-primary selection:bg-accent-subtle selection:text-accent">
       {/* Top Navigation Bar */}
-      <header className="border-b border-border-subtle bg-surface/80 backdrop-blur-sm sticky top-0 z-10 px-6 py-4">
+      <header className="border-b border-border-subtle bg-surface sticky top-0 z-10 px-6 py-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-3">

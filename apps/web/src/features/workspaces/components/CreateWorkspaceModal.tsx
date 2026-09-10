@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { X, Briefcase, ArrowRight, Loader2, AlertCircle } from 'lucide-react'
 import { createWorkspace } from '../api/workspaceApi'
 import { useWorkspaceStore } from '../stores/workspaceStore'
@@ -19,6 +19,15 @@ export const CreateWorkspaceModal: React.FC<CreateWorkspaceModalProps> = ({
   const [isLoading, setIsLoading] = useState(false)
 
   const { setActiveWorkspace, workspaces, setWorkspaces } = useWorkspaceStore()
+
+  useEffect(() => {
+    if (!isOpen) return
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose()
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [isOpen, onClose])
 
   if (!isOpen) return null
 
@@ -48,11 +57,15 @@ export const CreateWorkspaceModal: React.FC<CreateWorkspaceModalProps> = ({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-text-primary/40 backdrop-blur-sm animate-in fade-in duration-150">
+    <div
+      onClick={onClose}
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#1C1A16]/30 animate-in fade-in duration-150"
+      aria-modal="true"
+      role="dialog"
+    >
       <div
+        onClick={(e) => e.stopPropagation()}
         className="w-full max-w-md bg-surface border border-border-subtle rounded-card shadow-modal overflow-hidden animate-in zoom-in-95 duration-200"
-        role="dialog"
-        aria-modal="true"
       >
         <div className="flex items-center justify-between px-6 pt-6 pb-4 border-b border-border-subtle">
           <div>
@@ -64,6 +77,7 @@ export const CreateWorkspaceModal: React.FC<CreateWorkspaceModalProps> = ({
           <button
             onClick={onClose}
             className="p-1.5 rounded-button text-text-secondary hover:text-text-primary hover:bg-canvas transition-colors"
+            title="Close (Esc)"
           >
             <X className="w-5 h-5" />
           </button>

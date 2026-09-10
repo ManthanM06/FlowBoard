@@ -59,6 +59,16 @@ export const WorkspaceSwitcher: React.FC<WorkspaceSwitcherProps> = ({ isAuthenti
     loadWorkspaces()
   }, [isAuthenticated, setWorkspaces, setActiveWorkspace])
 
+  // Check URL query parameters for invite link
+  useEffect(() => {
+    if (!isAuthenticated) return
+    const params = new URLSearchParams(window.location.search)
+    const joinCode = params.get('join')
+    if (joinCode) {
+      setIsJoinOpen(true)
+    }
+  }, [isAuthenticated])
+
   // Close dropdown on outside click
   useEffect(() => {
     const handleOutsideClick = (e: MouseEvent) => {

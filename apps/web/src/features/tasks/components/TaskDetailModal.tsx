@@ -215,7 +215,7 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
   return (
     <div
       onClick={onClose}
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#1C1A16]/30 animate-in fade-in duration-150"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#1C1A16]/40 dark:bg-black/60 backdrop-blur-[2px] animate-in fade-in duration-150"
       aria-modal="true"
       role="dialog"
     >
@@ -319,9 +319,9 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
               </label>
               <div className="flex items-center gap-1.5">
                 {[
-                  { key: TaskPriority.LOW, label: 'Low', color: 'text-priority-low border-emerald-300 bg-emerald-50' },
-                  { key: TaskPriority.MEDIUM, label: 'Medium', color: 'text-priority-medium border-amber-300 bg-amber-50' },
-                  { key: TaskPriority.HIGH, label: 'High', color: 'text-priority-high border-red-300 bg-red-50' },
+                  { key: TaskPriority.LOW, label: 'Low', color: 'text-priority-low border-emerald-300 dark:border-emerald-800/40 bg-emerald-50 dark:bg-emerald-950/40' },
+                  { key: TaskPriority.MEDIUM, label: 'Medium', color: 'text-priority-medium border-amber-300 dark:border-amber-800/40 bg-amber-50 dark:bg-amber-950/40' },
+                  { key: TaskPriority.HIGH, label: 'High', color: 'text-priority-high border-red-300 dark:border-red-800/40 bg-red-50 dark:bg-red-950/40' },
                 ].map((p) => {
                   const isSelected = priority === p.key
                   return (

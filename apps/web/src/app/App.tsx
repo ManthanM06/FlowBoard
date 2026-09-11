@@ -23,19 +23,24 @@ import {
   KeyRound,
 } from 'lucide-react'
 
+import { ThemeToggle } from '../shared/components/ThemeToggle'
+import { useThemeStore } from '../shared/stores/themeStore'
+
 export const App: React.FC = () => {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false)
   const { user, isAuthenticated, initAuth, clearAuth, setUser } = useAuthStore()
   const { activeWorkspace } = useWorkspaceStore()
+  const initTheme = useThemeStore((s) => s.initTheme)
 
   useEffect(() => {
+    initTheme()
     initAuth()
     if (isAuthenticated) {
       fetchMe()
         .then((userData) => setUser(userData))
         .catch(() => clearAuth())
     }
-  }, [initAuth, isAuthenticated, setUser, clearAuth])
+  }, [initTheme, initAuth, isAuthenticated, setUser, clearAuth])
 
   const {
     data: healthData,
@@ -67,10 +72,10 @@ export const App: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-canvas text-text-primary">
+    <div className="min-h-screen flex flex-col bg-canvas text-text-primary transition-colors">
       {/* Studio Ledger Top Navigation Bar */}
-      <header className="border-b border-border-subtle bg-surface sticky top-0 z-10 px-6 py-4">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
+      <header className="border-b border-border-subtle bg-surface sticky top-0 z-30 px-4 sm:px-6 lg:px-8 py-3.5 w-full transition-colors">
+        <div className="w-full flex items-center justify-between gap-4">
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-3">
               <div className="w-9 h-9 rounded-button bg-accent text-white flex items-center justify-center font-bold shadow-sm">
@@ -100,6 +105,9 @@ export const App: React.FC = () => {
               </span>
             </div>
 
+            {/* Dark / Light Theme Toggle */}
+            <ThemeToggle />
+
             {/* Notification Bell */}
             {isAuthenticated && <NotificationBell />}
 
@@ -116,7 +124,7 @@ export const App: React.FC = () => {
                 <button
                   onClick={handleLogout}
                   title="Sign Out"
-                  className="p-1.5 rounded-button text-text-secondary hover:text-status-error hover:bg-red-50 transition-colors"
+                  className="p-1.5 rounded-button text-text-secondary hover:text-status-error hover:bg-status-error/10 transition-colors"
                 >
                   <LogOut className="w-4 h-4" />
                 </button>
@@ -372,7 +380,7 @@ export const App: React.FC = () => {
                   </span>
                 </div>
                 <h3 className="text-sm font-medium text-text-primary leading-snug">
-                  Phase 1 Authentication & Verification
+                  Team Authentication & Verification
                 </h3>
                 <p className="text-xs text-text-secondary leading-relaxed">
                   Dual JWT token lifecycle, refresh token rotation, and Studio Ledger modal UI.
@@ -454,12 +462,12 @@ export const App: React.FC = () => {
           </div>
         </section>
 
-        {/* Phase Roadmap Progression Footer */}
+        {/* Real-time Collaboration Banner */}
         <section className="bg-surface border border-border-subtle rounded-card p-6 shadow-card flex flex-col md:flex-row items-center justify-between gap-4">
           <div>
-            <h3 className="text-base font-semibold text-text-primary">Phase 1 Complete: Auth & Users</h3>
+            <h3 className="text-base font-semibold text-text-primary">Real-Time Team Collaboration</h3>
             <p className="text-xs text-text-secondary mt-1">
-              Users can register, sign in, maintain authenticated sessions, and access protected endpoints.
+              Organize workspaces, manage multi-column Kanban boards, and collaborate in real-time.
             </p>
           </div>
           <div className="flex items-center gap-3">
@@ -487,7 +495,7 @@ export const App: React.FC = () => {
 
       {/* Footer */}
       <footer className="border-t border-border-subtle py-6 px-6 text-center text-xs font-mono text-text-secondary">
-        FlowBoard • Phase 1 Milestone Completed • Studio Ledger Design System
+        FlowBoard • Team Task Management • Studio Ledger Design System
       </footer>
     </div>
   )

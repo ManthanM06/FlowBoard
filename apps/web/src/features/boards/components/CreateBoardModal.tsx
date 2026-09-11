@@ -61,7 +61,7 @@ export const CreateBoardModal: React.FC<CreateBoardModalProps> = ({
   return (
     <div
       onClick={onClose}
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#1C1A16]/30 animate-in fade-in duration-150"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#1C1A16]/40 dark:bg-black/60 backdrop-blur-[2px] animate-in fade-in duration-150"
       aria-modal="true"
       role="dialog"
     >

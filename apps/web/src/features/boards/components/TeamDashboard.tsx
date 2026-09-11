@@ -133,39 +133,35 @@ export const TeamDashboard: React.FC<TeamDashboardProps> = ({
           </div>
         </div>
 
-        {/* Completion Rate */}
+        {/* Completed */}
         <div className="bg-surface rounded-card p-4 border border-border-subtle shadow-card flex items-center gap-3.5">
-          <div className="w-10 h-10 rounded-button bg-emerald-50 text-priority-low border border-emerald-200 flex items-center justify-center font-bold">
+          <div className="w-10 h-10 rounded-button bg-emerald-50 dark:bg-emerald-950/40 text-priority-low border border-emerald-200 dark:border-emerald-800/40 flex items-center justify-center font-bold">
             <CheckCircle2 className="w-5 h-5" />
           </div>
           <div>
-            <div className="text-2xl font-bold font-mono text-text-primary">
-              {completionRate}%
+            <div className="text-2xl font-bold text-text-primary tracking-tight font-mono">
+              {completedTasks}
             </div>
-            <div className="text-xs text-text-secondary font-medium">
-              {completedTasks} of {totalTasks} Completed
-            </div>
+            <div className="text-xs font-medium text-text-secondary">Completed</div>
           </div>
         </div>
 
         {/* High Priority */}
         <div className="bg-surface rounded-card p-4 border border-border-subtle shadow-card flex items-center gap-3.5">
-          <div className="w-10 h-10 rounded-button bg-red-50 text-priority-high border border-red-200 flex items-center justify-center font-bold">
+          <div className="w-10 h-10 rounded-button bg-red-50 dark:bg-red-950/40 text-priority-high border border-red-200 dark:border-red-800/40 flex items-center justify-center font-bold">
             <AlertTriangle className="w-5 h-5" />
           </div>
           <div>
-            <div className="text-2xl font-bold font-mono text-text-primary">
+            <div className="text-2xl font-bold text-text-primary tracking-tight font-mono">
               {highPriorityTasks}
             </div>
-            <div className="text-xs text-text-secondary font-medium">
-              High Priority Tasks
-            </div>
+            <div className="text-xs font-medium text-text-secondary">High Priority</div>
           </div>
         </div>
 
         {/* Overdue */}
         <div className="bg-surface rounded-card p-4 border border-border-subtle shadow-card flex items-center gap-3.5">
-          <div className="w-10 h-10 rounded-button bg-amber-50 text-priority-medium border border-amber-200 flex items-center justify-center font-bold">
+          <div className="w-10 h-10 rounded-button bg-amber-50 dark:bg-amber-950/40 text-priority-medium border border-amber-200 dark:border-amber-800/40 flex items-center justify-center font-bold">
             <Clock className="w-5 h-5" />
           </div>
           <div>
@@ -336,7 +332,7 @@ export const TeamDashboard: React.FC<TeamDashboardProps> = ({
 
                     <td className="py-3 px-3 font-mono">
                       {high > 0 ? (
-                        <span className="px-1.5 py-0.5 rounded-chip text-[10px] font-semibold bg-red-50 text-priority-high border border-red-200">
+                        <span className="px-1.5 py-0.5 rounded-chip text-[10px] font-semibold bg-red-50 dark:bg-red-950/40 text-priority-high border border-red-200 dark:border-red-800/40">
                           {high}
                         </span>
                       ) : (
@@ -346,7 +342,7 @@ export const TeamDashboard: React.FC<TeamDashboardProps> = ({
 
                     <td className="py-3 px-3 font-mono">
                       {overdue > 0 ? (
-                        <span className="px-1.5 py-0.5 rounded-chip text-[10px] font-semibold bg-amber-50 text-priority-medium border border-amber-200">
+                        <span className="px-1.5 py-0.5 rounded-chip text-[10px] font-semibold bg-amber-50 dark:bg-amber-950/40 text-priority-medium border border-amber-200 dark:border-amber-800/40">
                           {overdue}
                         </span>
                       ) : (

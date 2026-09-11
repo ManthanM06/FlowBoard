@@ -133,7 +133,7 @@ export const WorkspaceMembersModal: React.FC<WorkspaceMembersModalProps> = ({
   return (
     <div
       onClick={onClose}
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#1C1A16]/30 animate-in fade-in duration-150"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#1C1A16]/40 dark:bg-black/60 backdrop-blur-[2px] animate-in fade-in duration-150"
       aria-modal="true"
       role="dialog"
     >
@@ -216,7 +216,7 @@ export const WorkspaceMembersModal: React.FC<WorkspaceMembersModalProps> = ({
               </div>
             </div>
           ) : (
-            <div className="p-3 rounded-button bg-amber-50 border border-amber-200 text-priority-medium text-xs flex items-center gap-2">
+            <div className="p-3 rounded-button bg-priority-medium/10 border border-priority-medium/20 text-priority-medium text-xs flex items-center gap-2">
               <Loader2 className="w-4 h-4 animate-spin shrink-0" />
               <span>Generating invite code...</span>
             </div>
@@ -226,7 +226,7 @@ export const WorkspaceMembersModal: React.FC<WorkspaceMembersModalProps> = ({
         {/* Members Roster */}
         <div className="p-6 overflow-y-auto space-y-3 flex-1">
           {actionError && (
-            <div className="p-3 rounded-button bg-red-50 border border-red-200 text-status-error text-xs flex items-start gap-2">
+            <div className="p-3 rounded-button bg-status-error/10 border border-status-error/20 text-status-error text-xs flex items-start gap-2">
               <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
               <span>{actionError}</span>
             </div>
@@ -263,7 +263,7 @@ export const WorkspaceMembersModal: React.FC<WorkspaceMembersModalProps> = ({
                           {member.user.name}
                         </span>
                         {isOwner && (
-                          <span className="text-[10px] font-mono font-semibold px-1.5 py-0.2 rounded-chip bg-amber-50 text-priority-medium border border-amber-200">
+                          <span className="text-[10px] font-mono font-semibold px-1.5 py-0.2 rounded-chip bg-amber-50 dark:bg-amber-950/40 text-priority-medium border border-amber-200 dark:border-amber-800/40">
                             Owner
                           </span>
                         )}
@@ -294,7 +294,7 @@ export const WorkspaceMembersModal: React.FC<WorkspaceMembersModalProps> = ({
                             <button
                               onClick={() => handleRemoveMember(member.userId)}
                               title="Remove Member"
-                              className="p-1 rounded-button text-text-secondary hover:text-status-error hover:bg-red-50 transition-colors"
+                              className="p-1 rounded-button text-text-secondary hover:text-status-error hover:bg-status-error/10 transition-colors"
                             >
                               <Trash2 className="w-4 h-4" />
                             </button>

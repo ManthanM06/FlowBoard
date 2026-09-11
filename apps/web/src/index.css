@@ -23,6 +23,33 @@
   --priority-high: #B5533C;
   --status-success: #4C7A5E;
   --status-error: #A8433A;
+
+  color-scheme: light;
+}
+
+.dark {
+  /* Studio Ledger Dark Neutrals */
+  --bg-canvas: #131210;
+  --bg-surface: #1C1A17;
+  --bg-sunken: #26231F;
+  --border-subtle: #36322C;
+  --text-primary: #F5F2EB;
+  --text-secondary: #A39B8E;
+  --text-disabled: #635E56;
+
+  /* Accent: Luminous Indigo / Lavender */
+  --accent: #7E73B8;
+  --accent-hover: #9287CC;
+  --accent-subtle: #2C2642;
+
+  /* Semantic Hues adapted for dark mode */
+  --priority-low: #6EAB8B;
+  --priority-medium: #DDA34E;
+  --priority-high: #E06950;
+  --status-success: #5FAF7C;
+  --status-error: #D9534F;
+
+  color-scheme: dark;
 }
 
 body {

@@ -52,19 +52,19 @@ export const TaskCard: React.FC<TaskCardProps> = ({
     switch (priority) {
       case TaskPriority.HIGH:
         return (
-          <span className="px-1.5 py-0.5 rounded-chip text-[10px] font-mono font-semibold bg-red-50 text-priority-high border border-red-200">
+          <span className="px-1.5 py-0.5 rounded-chip text-[10px] font-mono font-semibold bg-red-50 dark:bg-red-950/40 text-priority-high border border-red-200 dark:border-red-800/40">
             High
           </span>
         )
       case TaskPriority.MEDIUM:
         return (
-          <span className="px-1.5 py-0.5 rounded-chip text-[10px] font-mono font-semibold bg-amber-50 text-priority-medium border border-amber-200">
+          <span className="px-1.5 py-0.5 rounded-chip text-[10px] font-mono font-semibold bg-amber-50 dark:bg-amber-950/40 text-priority-medium border border-amber-200 dark:border-amber-800/40">
             Medium
           </span>
         )
       case TaskPriority.LOW:
         return (
-          <span className="px-1.5 py-0.5 rounded-chip text-[10px] font-mono font-semibold bg-emerald-50 text-priority-low border border-emerald-200">
+          <span className="px-1.5 py-0.5 rounded-chip text-[10px] font-mono font-semibold bg-emerald-50 dark:bg-emerald-950/40 text-priority-low border border-emerald-200 dark:border-emerald-800/40">
             Low
           </span>
         )
@@ -139,7 +139,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({
           <div
             className={`flex items-center gap-1 font-mono text-[11px] px-1.5 py-0.5 rounded ${
               isOverdue(task.dueDate)
-                ? 'bg-red-50 text-priority-high font-semibold border border-red-200'
+                ? 'bg-red-50 dark:bg-red-950/40 text-priority-high font-semibold border border-red-200 dark:border-red-800/40'
                 : 'text-text-secondary'
             }`}
             title={task.dueDate}

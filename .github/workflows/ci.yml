@@ -35,6 +35,14 @@ jobs:
           --health-timeout 5s
           --health-retries 5
 
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/flowboard_test?schema=public
+      REDIS_URL: redis://localhost:6379
+      JWT_SECRET: flowboard_ci_test_jwt_secret_key_32bytes_long
+      JWT_REFRESH_SECRET: flowboard_ci_test_jwt_refresh_secret_key_32bytes_long
+      PORT: 3001
+      NODE_ENV: test
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -56,8 +64,14 @@ jobs:
           npx prisma validate --schema=apps/api/prisma/schema.prisma
           npm run prisma:generate
 
+      - name: Push Database Schema
+        run: npx prisma db push --schema=apps/api/prisma/schema.prisma
+
       - name: Lint
         run: npm run lint
+
+      - name: Run Tests
+        run: npm test
 
       - name: Build applications
         run: npm run build
